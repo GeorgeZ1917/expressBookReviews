@@ -1,4 +1,5 @@
 const express = require('express');
+const session = require('express-session')
 const jwt = require('jsonwebtoken');
 let books = require("./booksdb.js");
 const regd_users = express.Router();
@@ -16,13 +17,10 @@ const isValid = (username) => {
     }
 }
 
-// Check if a user with the given username already exists
 const doesExist = (username) => {
-    // Filter the users array for any user with the same username
     let userswithsamename = users.filter((user) => {
         return user.username === username;
     });
-    // Return true if any user with the same username is found, otherwise false
     if (userswithsamename.length > 0) {
         return true;
     } else {
@@ -30,13 +28,10 @@ const doesExist = (username) => {
     }
 }
 
-// Check if the user with the given username and password exists
 const authenticatedUser = (username, password) => {
-    // Filter the users array for any user with the same username and password
     let validusers = users.filter((user) => {
         return (user.username === username && user.password === password);
     });
-    // Return true if any valid user is found, otherwise false
     if (validusers.length > 0) {
         return true;
     } else {
@@ -44,13 +39,22 @@ const authenticatedUser = (username, password) => {
     }
 }
 
-// Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const isbn = req.params.isbn;
+    const username = req.session.authorization['username'];
+    const review = req.body.review;
+    let bookWithISBN = books[isbn];
+    
+    if (bookWithISBN != undefined) {
+        bookWithISBN.reviews[username] = review;
+        res.send(bookWithISBN);
+    } else {
+        return res.send("The book with the ISBN was not found.");
+    }
 });
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.doesExist = doesExist;
+module.exports.authenticatedUser = authenticatedUser;
 module.exports.users = users;
