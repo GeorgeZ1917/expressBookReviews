@@ -1,8 +1,7 @@
 const express = require('express');
 let books = require("./booksdb.js");
-let isValid = require("./auth_users.js").isValid;
-let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const axios = require('axios');
 
 public_users.get('/',function (req, res) {
   res.send(JSON.stringify(books));
@@ -85,5 +84,49 @@ public_users.get('/review/:isbn',function (req, res) {
     return res.send(`The book with the '${isbn}' ISBN was not found.`);
   }
 });
+
+async function getAllBooks() {
+  try {
+    const response = await axios.get('http://localhost:5000/');
+    console.log(`The books: ${JSON.stringify(response.data)}`);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function getBookByISBN() {
+  try {
+    const response = await axios.get('http://localhost:5000/isbn/8');
+    console.log(`The book by ISBN: ${JSON.stringify(response.data)}`);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function getBookByAuthor() {
+  try {
+    const response = await axios.get('http://localhost:5000/author/Dante Alighieri');
+    console.log(`The book by author: ${JSON.stringify(response.data)}`);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function getBookByTitle() {
+  try {
+    const response = await axios.get('http://localhost:5000/title/Pride and Prejudice');
+    console.log(`The book by title: ${JSON.stringify(response.data)}`);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+getAllBooks();
+
+getBookByISBN();
+
+getBookByAuthor();
+
+getBookByTitle();
 
 module.exports.general = public_users;
